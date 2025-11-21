@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://td1.com/serveur"
+            xmlns:tns="http://td1.com/serveur"
+            elementFormDefault="qualified">
+
+  <!-- Type réutilisable pour réponses avec succès -->
+  <xsd:complexType name="ServerActionResponseType">
+    <xsd:sequence>
+      <xsd:element name="success" type="xsd:boolean"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <!-- CreateServer -->
+  <xsd:element name="CreateServerRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="nom" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="CreateServerResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="id" type="xsd:long"/>
+        <xsd:element name="nom" type="xsd:string"/>
+        <xsd:element name="statut" type="xsd:boolean"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- GetAllServers -->
+  <xsd:element name="GetAllServersRequest" type="xsd:anyType"/>
+  <xsd:element name="GetAllServersResponse">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="server" minOccurs="0" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="id" type="xsd:long"/>
+              <xsd:element name="nom" type="xsd:string"/>
+              <xsd:element name="statut" type="xsd:boolean"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+  <!-- Start -->
+  <xsd:element name="StartServerRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="id" type="xsd:long"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="StartServerResponse" type="tns:ServerActionResponseType"/>
+
+  <!-- Stop -->
+  <xsd:element name="StopServerRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="id" type="xsd:long"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="StopServerResponse" type="tns:ServerActionResponseType"/>
+
+  <!-- Rename -->
+  <xsd:element name="RenameServerRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="id" type="xsd:long"/>
+        <xsd:element name="nom" type="xsd:string"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="RenameServerResponse" type="tns:ServerActionResponseType"/>
+
+  <!-- Delete -->
+  <xsd:element name="DeleteServerRequest">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="id" type="xsd:long"/>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+  <xsd:element name="DeleteServerResponse" type="tns:ServerActionResponseType"/>
+
+</xsd:schema>

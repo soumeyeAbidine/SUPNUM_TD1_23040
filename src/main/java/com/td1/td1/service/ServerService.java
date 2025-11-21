@@ -8,7 +8,7 @@ import java.util.Optional;
 public interface ServerService {
     serveur createServer(String nom);
     List<serveur> getAllServers();
-    Optional<serveur> renameServer(Long id, String nouveauNom);
+    Optional<serveur> renameServer(Long id, String nom);
     Optional<Boolean> getServerStatus(Long id);
     Optional<serveur> startServer(Long id);
     Optional<serveur> stopServer(Long id);

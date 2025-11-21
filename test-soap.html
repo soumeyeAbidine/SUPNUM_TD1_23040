@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Service SOAP - Serveurs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .operation {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .operation h3 {
+            margin-top: 0;
+            color: #555;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"], input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .response {
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .error {
+            background-color: #ffebee;
+            border-color: #f44336;
+            color: #c62828;
+        }
+        .success {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+            color: #2e7d32;
+        }
+        .info {
+            background-color: #e3f2fd;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🧪 Test Service SOAP - Gestion des Serveurs</h1>
+    
+    <div class="info">
+        <strong>📌 URL du service :</strong> http://localhost:8081/ws<br>
+        <strong>📌 Port :</strong> 8081<br>
+        <strong>⚠️ Assurez-vous que votre application Spring Boot est démarrée !</strong>
+    </div>
+
+    <!-- Créer un serveur -->
+    <div class="container">
+        <div class="operation">
+            <h3>1. Créer un serveur (CreateServerRequest)</h3>
+            <label>Nom du serveur :</label>
+            <input type="text" id="createNom" value="Serveur Test" placeholder="Entrez un nom">
+            <button onclick="createServer()">Créer le serveur</button>
+            <div id="createResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Lister tous les serveurs -->
+    <div class="container">
+        <div class="operation">
+            <h3>2. Lister tous les serveurs (GetAllServersRequest)</h3>
+            <button onclick="getAllServers()">Lister tous les serveurs</button>
+            <div id="getAllResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Démarrer un serveur -->
+    <div class="container">
+        <div class="operation">
+            <h3>3. Démarrer un serveur (StartServerRequest)</h3>
+            <label>ID du serveur :</label>
+            <input type="number" id="startId" value="1" placeholder="Entrez l'ID">
+            <button onclick="startServer()">Démarrer le serveur</button>
+            <div id="startResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Arrêter un serveur -->
+    <div class="container">
+        <div class="operation">
+            <h3>4. Arrêter un serveur (StopServerRequest)</h3>
+            <label>ID du serveur :</label>
+            <input type="number" id="stopId" value="1" placeholder="Entrez l'ID">
+            <button onclick="stopServer()">Arrêter le serveur</button>
+            <div id="stopResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Renommer un serveur -->
+    <div class="container">
+        <div class="operation">
+            <h3>5. Renommer un serveur (RenameServerRequest)</h3>
+            <label>ID du serveur :</label>
+            <input type="number" id="renameId" value="1" placeholder="Entrez l'ID">
+            <label>Nouveau nom :</label>
+            <input type="text" id="renameNom" value="Nouveau Nom" placeholder="Entrez le nouveau nom">
+            <button onclick="renameServer()">Renommer le serveur</button>
+            <div id="renameResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+
+    <!-- Supprimer un serveur -->
+    <div class="container">
+        <div class="operation">
+            <h3>6. Supprimer un serveur (DeleteServerRequest)</h3>
+            <label>ID du serveur :</label>
+            <input type="number" id="deleteId" value="1" placeholder="Entrez l'ID">
+            <button onclick="deleteServer()">Supprimer le serveur</button>
+            <div id="deleteResponse" class="response" style="display:none;"></div>
+        </div>
+    </div>
+
+    <script>
+        const SOAP_URL = 'http://localhost:8081/ws';
+        const NAMESPACE = 'http://td1.com/serveur';
+
+        function sendSoapRequest(soapBody, responseElementId) {
+            const soapEnvelope = `<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" 
+                  xmlns:ser="${NAMESPACE}">
+   <soapenv:Header/>
+   <soapenv:Body>
+      ${soapBody}
+   </soapenv:Body>
+</soapenv:Envelope>`;
+
+            const responseDiv = document.getElementById(responseElementId);
+            responseDiv.style.display = 'block';
+            responseDiv.className = 'response';
+            responseDiv.textContent = 'Envoi de la requête...';
+
+            fetch(SOAP_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'text/xml',
+                    'SOAPAction': ''
+                },
+                body: soapEnvelope
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erreur HTTP: ${response.status} ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                responseDiv.className = 'response success';
+                responseDiv.textContent = formatXML(data);
+            })
+            .catch(error => {
+                responseDiv.className = 'response error';
+                responseDiv.textContent = `Erreur: ${error.message}\n\nVérifiez que:\n- L'application Spring Boot est démarrée\n- Le port 8081 est accessible\n- MySQL est démarré`;
+            });
+        }
+
+        function formatXML(xml) {
+            let formatted = '';
+            let indent = '';
+            xml.split(/>\s*</).forEach(node => {
+                if (node.match(/^\/\w/)) indent = indent.substring(2);
+                formatted += indent + '<' + node + '>\r\n';
+                if (node.match(/^<?\w[^>]*[^\/]$/) && !node.startsWith('input')) indent += '  ';
+            });
+            return formatted.substring(1, formatted.length - 3);
+        }
+
+        function createServer() {
+            const nom = document.getElementById('createNom').value;
+            const soapBody = `<ser:CreateServerRequest>
+         <ser:nom>${nom}</ser:nom>
+      </ser:CreateServerRequest>`;
+            sendSoapRequest(soapBody, 'createResponse');
+        }
+
+        function getAllServers() {
+            const soapBody = `<ser:GetAllServersRequest/>`;
+            sendSoapRequest(soapBody, 'getAllResponse');
+        }
+
+        function startServer() {
+            const id = document.getElementById('startId').value;
+            const soapBody = `<ser:StartServerRequest>
+         <ser:id>${id}</ser:id>
+      </ser:StartServerRequest>`;
+            sendSoapRequest(soapBody, 'startResponse');
+        }
+
+        function stopServer() {
+            const id = document.getElementById('stopId').value;
+            const soapBody = `<ser:StopServerRequest>
+         <ser:id>${id}</ser:id>
+      </ser:StopServerRequest>`;
+            sendSoapRequest(soapBody, 'stopResponse');
+        }
+
+        function renameServer() {
+            const id = document.getElementById('renameId').value;
+            const nom = document.getElementById('renameNom').value;
+            const soapBody = `<ser:RenameServerRequest>
+         <ser:id>${id}</ser:id>
+         <ser:nom>${nom}</ser:nom>
+      </ser:RenameServerRequest>`;
+            sendSoapRequest(soapBody, 'renameResponse');
+        }
+
+        function deleteServer() {
+            const id = document.getElementById('deleteId').value;
+            const soapBody = `<ser:DeleteServerRequest>
+         <ser:id>${id}</ser:id>
+      </ser:DeleteServerRequest>`;
+            sendSoapRequest(soapBody, 'deleteResponse');
+        }
+    </script>
+</body>
+</html>
+
+
